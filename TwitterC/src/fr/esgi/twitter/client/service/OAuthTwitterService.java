@@ -1,9 +1,11 @@
 package fr.esgi.twitter.client.service;
 
-import java.util.Scanner;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.builder.api.TwitterApi;
+import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
@@ -12,50 +14,66 @@ import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
 import fr.esgi.twitter.client.consts.Consumer;
+import fr.esgi.twitter.client.utils.DesktopUtils;
 
-public abstract class OAuthTwitterService {
+public class OAuthTwitterService {
 
-	private static final String PROTECTED_RESOURCE_URL = "https://api.twitter.com/1.1/account/verify_credentials.json";
+	private OAuthService service;
+	private Token requestToken;
 
-	public static void oAuthTwitter() {
-		OAuthService service = new ServiceBuilder().provider(TwitterApi.class).apiKey(Consumer.KEY)
-				.apiSecret(Consumer.SECRET).build();
-		Scanner in = new Scanner(System.in);
+	public OAuthTwitterService() {
 
-		System.out.println("=== Twitter's OAuth Workflow ===");
-		System.out.println();
+		service = new ServiceBuilder().provider(TwitterApi.class).apiKey(Consumer.KEY).apiSecret(Consumer.SECRET)
+				.build();
 
-		// Obtain the Request Token
-		System.out.println("Fetching the Request Token...");
-		Token requestToken = service.getRequestToken();
-		System.out.println("Got the Request Token!");
-		System.out.println();
+		requestToken = service.getRequestToken();
+	}
 
-		System.out.println("Now go and authorize Scribe here:");
-		System.out.println(service.getAuthorizationUrl(requestToken));
-		System.out.println("And paste the verifier here");
-		System.out.print(">>");
-		Verifier verifier = new Verifier(in.nextLine());
-		System.out.println();
+	/**
+	 * Ouvre le navigateur et demande à Twitter pour que l'utilisateur autorise
+	 * l'application
+	 */
+	public void ask() {
 
-		// Trade the Request Token and Verfier for the Access Token
-		System.out.println("Trading the Request Token for an Access Token...");
-		Token accessToken = service.getAccessToken(requestToken, verifier);
-		System.out.println("Got the Access Token!");
-		System.out.println("(if you're curious, it looks like this: " + accessToken + " )");
-		System.out.println();
+		try {
 
-		// Now let's go and ask for a protected resource!
-		System.out.println("Now we're going to access a protected resource...");
-		OAuthRequest request = new OAuthRequest(Verb.GET, PROTECTED_RESOURCE_URL);
-		service.signRequest(accessToken, request);
-		Response response = request.send();
-		System.out.println("Got it! Lets see what we found...");
-		System.out.println();
-		System.out.println(response.getBody());
+			DesktopUtils.openWebpage(new URI(service.getAuthorizationUrl(requestToken)));
 
-		System.out.println();
-		System.out.println("That's it man! Go and build something awesome with Scribe! :)");
+		} catch (URISyntaxException e) {
+
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Demander à Twitter si l'utilisateur a autorisé l'application
+	 * 
+	 * @param code
+	 * @return <code>true</code> si l'authentification s'est correctement
+	 *         déroulée, <code>false</code> si non
+	 */
+	public boolean auth(String code) {
+
+		try {
+
+			Verifier verifier = new Verifier(code);
+
+			Token accessToken = service.getAccessToken(requestToken, verifier);
+
+			// FIXME : Juste pour tester
+			OAuthRequest request = new OAuthRequest(Verb.GET,
+					"https://api.twitter.com/1.1/account/verify_credentials.json");
+			service.signRequest(accessToken, request);
+			Response response = request.send();
+			System.out.println(response.getBody());
+			//
+
+			return true;
+
+		} catch (OAuthException e) {
+
+			return false;
+		}
 	}
 
 }

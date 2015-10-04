@@ -14,12 +14,7 @@ import javax.swing.JTextField;
 
 import lombok.Getter;
 
-/**
- * 
- * @author Benjamin
- *
- */
-public class Window extends JFrame implements ActionListener {
+public class MainWindow extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	@Getter
@@ -33,10 +28,7 @@ public class Window extends JFrame implements ActionListener {
 	private JTextField txtTweet;
 	private JButton btnUpdate;
 
-	/**
-	 * Constructeur
-	 */
-	public Window() {
+	public MainWindow() {
 		setTitle("Twitter SOA");
 
 		btnUpdate = new JButton("Update");
