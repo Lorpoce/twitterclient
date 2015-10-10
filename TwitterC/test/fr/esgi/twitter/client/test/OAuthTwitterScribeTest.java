@@ -14,7 +14,7 @@ import org.scribe.oauth.OAuthService;
 
 public class OAuthTwitterScribeTest {
 
-	private static final String PROTECTED_RESOURCE_URL = "https://api.twitter.com/1.1/account/verify_credentials.json";
+	private static final String PROTECTED_RESOURCE_URL = "https://api.twitter.com/1.1/statuses/user_timeline.json";
 
 	@Test
 	public void test() {
