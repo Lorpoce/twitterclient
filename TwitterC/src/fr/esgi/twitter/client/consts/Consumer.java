@@ -1,6 +1,6 @@
 package fr.esgi.twitter.client.consts;
 
-public class Consumer {
+public abstract class Consumer {
 
 	public static final String KEY = "PjjKEfuw5SNWOZiqhT2TWxu9P";
 

@@ -6,9 +6,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import fr.esgi.twitter.client.service.OAuthTwitterService;
+import fr.esgi.twitter.client.service.OAuthService;
 
 public class OAuthWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -17,11 +18,7 @@ public class OAuthWindow extends JFrame {
 	private JButton btnOk;
 	private JTextField txtCode;
 
-	private OAuthTwitterService oAuthTwitterService;
-
 	public OAuthWindow() {
-
-		oAuthTwitterService = new OAuthTwitterService();
 
 		txtCode = new JTextField();
 		txtCode.setText("Code");
@@ -50,7 +47,7 @@ public class OAuthWindow extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 
-				oAuthTwitterService.ask();
+				OAuthService.ask();
 			}
 		});
 	}
@@ -63,19 +60,30 @@ public class OAuthWindow extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 
-				/*
-				 * Si le champ de texte du code est rempli et que
-				 * l'authentification s'est correctement déroulée
-				 */
-				if (txtCode.getText() != null && txtCode.getText().length() > 0
-						&& oAuthTwitterService.auth(txtCode.getText())) {
+				if (txtCode.getText() != null) {
 
-					// Fermer la fenêtre
-					setVisible(false);
-					dispose();
+					String code = txtCode.getText().trim();
 
-					// Ouvrir MainWindow
-					new MainWindow();
+					if (!code.isEmpty()) {
+
+						if (OAuthService.auth(code)) {
+
+							// Fermer la fenêtre
+							setVisible(false);
+							dispose();
+
+							// Ouvrir MainWindow
+							new MainWindow();
+
+						} else {
+
+							JOptionPane.showMessageDialog(btnOk, "Can not connect to Twitter. Please check the code.");
+						}
+
+					} else {
+
+						JOptionPane.showMessageDialog(btnOk, "You must fill the text field");
+					}
 				}
 			}
 		});
