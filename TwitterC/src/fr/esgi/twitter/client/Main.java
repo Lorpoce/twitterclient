@@ -1,6 +1,6 @@
 package fr.esgi.twitter.client;
 
-import fr.esgi.twitter.client.ihm.OAuthWindow;
+import fr.esgi.twitter.client.ihm.frame.OAuthWindow;
 
 public class Main {
 

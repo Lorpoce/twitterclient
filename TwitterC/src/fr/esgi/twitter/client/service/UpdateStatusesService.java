@@ -9,8 +9,15 @@ import org.scribe.model.Response;
 import org.scribe.model.Verb;
 
 import fr.esgi.twitter.client.consts.URLs;
+import fr.esgi.twitter.client.model.CurrentUser;
 import fr.esgi.twitter.client.scribe.OAuthScribeTwitter;
 
+/**
+ * Service pour mettre à jour le status du {@link CurrentUser} (poster un tweet)
+ * 
+ * @author Benjamin
+ *
+ */
 public abstract class UpdateStatusesService {
 
 	private static final String STATUS = "status";

@@ -1,4 +1,4 @@
-package fr.esgi.twitter.client.ihm;
+package fr.esgi.twitter.client.ihm.frame;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;

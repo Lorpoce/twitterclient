@@ -22,7 +22,8 @@ public class OAuthScribeTwitter {
 	@Setter
 	private Token accessToken;
 
-	private static OAuthScribeTwitter INSTANCE = new OAuthScribeTwitter();
+	@Getter
+	private static OAuthScribeTwitter instance = new OAuthScribeTwitter();
 
 	private OAuthScribeTwitter() {
 
@@ -32,12 +33,8 @@ public class OAuthScribeTwitter {
 		requestToken = service.getRequestToken();
 	}
 
-	public static OAuthScribeTwitter getInstance() {
-		return INSTANCE;
-	}
-
 	public static void signRequest(OAuthRequest request) {
 
-		INSTANCE.getService().signRequest(INSTANCE.accessToken, request);
+		instance.getService().signRequest(instance.accessToken, request);
 	}
 }

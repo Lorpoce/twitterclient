@@ -12,10 +12,17 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 
 import fr.esgi.twitter.client.consts.URLs;
-import fr.esgi.twitter.client.model.User;
+import fr.esgi.twitter.client.model.CurrentUser;
 import fr.esgi.twitter.client.scribe.OAuthScribeTwitter;
 import fr.esgi.twitter.client.utils.DesktopUtils;
 
+/**
+ * Service pour s'authentifier sur Twitter. Initialise aussi le
+ * {@link CurrentUser}
+ * 
+ * @author Benjamin
+ *
+ */
 public abstract class OAuthService {
 
 	/**
@@ -58,7 +65,7 @@ public abstract class OAuthService {
 	}
 
 	/**
-	 * Initialise {@link User}
+	 * Initialise {@link CurrentUser}
 	 */
 	private static boolean initTwitterUser() {
 
@@ -72,7 +79,7 @@ public abstract class OAuthService {
 		if (response != null && response.getCode() == HttpStatus.SC_OK) {
 
 			// Initialiser l'utilisateur
-			User.init(new JSONObject(response.getBody()));
+			CurrentUser.init(new JSONObject(response.getBody()));
 
 			return true;
 		}

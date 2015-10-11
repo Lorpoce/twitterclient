@@ -1,4 +1,4 @@
-package fr.esgi.twitter.client.ihm;
+package fr.esgi.twitter.client.ihm.frame;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -14,7 +14,9 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import fr.esgi.twitter.client.model.User;
+import fr.esgi.twitter.client.ihm.renderer.TweetCellRenderer;
+import fr.esgi.twitter.client.model.CurrentUser;
+import fr.esgi.twitter.client.service.HomeTimeLineService;
 import fr.esgi.twitter.client.service.UpdateStatusesService;
 
 public class MainWindow extends JFrame {
@@ -23,20 +25,17 @@ public class MainWindow extends JFrame {
 	private JLabel lblProfileImage;
 	private JButton btnUpdate;
 	private JTextField txtTweet;
-	private JList<String> listTimeline;
+	private JList listTimeline; // FIXME
 
 	public MainWindow() {
 
 		buildProfileImageIcon();
-		builderUpdateButton();
+		buildUpdateButton();
+		buildTimeLineList();
 
 		txtTweet = new JTextField();
 		txtTweet.setColumns(10);
 		txtTweet.setBounds(71, 727, 326, 23);
-
-		listTimeline = new JList<String>();
-		listTimeline.setBounds(10, 11, 464, 680);
-		getContentPane().add(listTimeline);
 
 		getContentPane().setLayout(null);
 		getContentPane().add(btnUpdate);
@@ -55,7 +54,7 @@ public class MainWindow extends JFrame {
 		try {
 
 			lblProfileImage = new JLabel("");
-			lblProfileImage.setIcon(new ImageIcon(ImageIO.read(User.getInstance().getProfileImageUrl())));
+			lblProfileImage.setIcon(new ImageIcon(ImageIO.read(CurrentUser.getInstance().getProfileImageUrl())));
 			lblProfileImage.setForeground(Color.BLUE);
 			lblProfileImage.setBackground(Color.BLUE);
 			lblProfileImage.setBounds(10, 702, 48, 48);
@@ -66,7 +65,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	private void builderUpdateButton() {
+	private void buildUpdateButton() {
 
 		btnUpdate = new JButton("Update");
 		btnUpdate.setBounds(407, 727, 67, 23);
@@ -79,7 +78,7 @@ public class MainWindow extends JFrame {
 
 					String tweet = txtTweet.getText().trim();
 
-					if (!tweet.isEmpty()) {
+					if (tweet.length() > 0 && tweet.length() <= 140) {
 
 						if (UpdateStatusesService.update(txtTweet.getText())) {
 
@@ -95,10 +94,26 @@ public class MainWindow extends JFrame {
 
 					} else {
 
-						JOptionPane.showMessageDialog(btnUpdate, "You must fill the text field.");
+						JOptionPane.showMessageDialog(btnUpdate,
+								"You must fill the text field with 1 to 140 characters.");
 					}
 				}
 			}
 		});
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void buildTimeLineList() {
+
+		/*
+		 * FIXME
+		 */
+
+		listTimeline = new JList(HomeTimeLineService.getTimeLine().getTimeline().toArray());
+		listTimeline.setCellRenderer(new TweetCellRenderer());
+		listTimeline.setVisibleRowCount(20);
+
+		listTimeline.setBounds(10, 11, 464, 680);
+		getContentPane().add(listTimeline);
 	}
 }
