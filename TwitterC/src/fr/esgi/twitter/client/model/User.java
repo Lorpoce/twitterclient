@@ -1,7 +1,10 @@
 package fr.esgi.twitter.client.model;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +30,7 @@ public class User {
 
 	private URL url;
 
-	private URL profileImageUrl;
+	private ImageIcon profileImage;
 
 	public User() {
 	}
@@ -51,9 +54,9 @@ public class User {
 
 			setUrl(((json.has("url") && !json.isNull("url"))) ? new URL(json.getString("url")) : null);
 
-			setProfileImageUrl(new URL(json.getString("profile_image_url")));
+			setProfileImage(new ImageIcon(ImageIO.read(new URL(json.getString("profile_image_url")))));
 
-		} catch (MalformedURLException | JSONException e) {
+		} catch (JSONException | IOException e) {
 
 			e.printStackTrace();
 		}

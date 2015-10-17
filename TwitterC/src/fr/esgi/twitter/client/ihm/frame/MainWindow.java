@@ -3,31 +3,43 @@ package fr.esgi.twitter.client.ihm.frame;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
+import javax.inject.Inject;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+
+import org.springframework.stereotype.Component;
 
 import fr.esgi.twitter.client.ihm.renderer.TweetCellRenderer;
 import fr.esgi.twitter.client.model.CurrentUser;
+import fr.esgi.twitter.client.model.TimeLine;
 import fr.esgi.twitter.client.service.HomeTimeLineService;
 import fr.esgi.twitter.client.service.UpdateStatusesService;
 
+@Component
 public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 
+	@Inject
+	private UpdateStatusesService updateStatusesService;
+
+	@Inject
+	private HomeTimeLineService homeTimeLineService;
+
+	@SuppressWarnings("rawtypes")
+	private JList listTimeline;
 	private JLabel lblProfileImage;
 	private JButton btnUpdate;
 	private JTextField txtTweet;
-	private JList listTimeline; // FIXME
 
-	public MainWindow() {
+	public void open() {
 
 		buildProfileImageIcon();
 		buildUpdateButton();
@@ -35,7 +47,7 @@ public class MainWindow extends JFrame {
 
 		txtTweet = new JTextField();
 		txtTweet.setColumns(10);
-		txtTweet.setBounds(71, 727, 326, 23);
+		txtTweet.setBounds(71, 727, 800, 23);
 
 		getContentPane().setLayout(null);
 		getContentPane().add(btnUpdate);
@@ -45,30 +57,25 @@ public class MainWindow extends JFrame {
 		setTitle("Twitter SOA");
 		setLocationRelativeTo(null);
 		setResizable(false);
-		setSize(500, 800);
+		setSize(1000, 800);
 		setVisible(true);
+
+		loadTimeLine();
 	}
 
 	private void buildProfileImageIcon() {
 
-		try {
-
-			lblProfileImage = new JLabel("");
-			lblProfileImage.setIcon(new ImageIcon(ImageIO.read(CurrentUser.getInstance().getProfileImageUrl())));
-			lblProfileImage.setForeground(Color.BLUE);
-			lblProfileImage.setBackground(Color.BLUE);
-			lblProfileImage.setBounds(10, 702, 48, 48);
-
-		} catch (IOException e) {
-
-			e.printStackTrace();
-		}
+		lblProfileImage = new JLabel("");
+		lblProfileImage.setIcon(CurrentUser.getInstance().getProfileImage());
+		lblProfileImage.setForeground(Color.BLUE);
+		lblProfileImage.setBackground(Color.BLUE);
+		lblProfileImage.setBounds(10, 702, 48, 48);
 	}
 
 	private void buildUpdateButton() {
 
 		btnUpdate = new JButton("Update");
-		btnUpdate.setBounds(407, 727, 67, 23);
+		btnUpdate.setBounds(907, 727, 80, 23);
 
 		btnUpdate.addActionListener(new ActionListener() {
 
@@ -80,7 +87,7 @@ public class MainWindow extends JFrame {
 
 					if (tweet.length() > 0 && tweet.length() <= 140) {
 
-						if (UpdateStatusesService.update(txtTweet.getText())) {
+						if (updateStatusesService.update(txtTweet.getText())) {
 
 							txtTweet.setText("");
 
@@ -102,18 +109,34 @@ public class MainWindow extends JFrame {
 		});
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void buildTimeLineList() {
 
-		/*
-		 * FIXME
-		 */
+		JScrollPane jScrollPane = new JScrollPane();
 
-		listTimeline = new JList(HomeTimeLineService.getTimeLine().getTimeline().toArray());
-		listTimeline.setCellRenderer(new TweetCellRenderer());
+		listTimeline = new JList(new String[] { "Loading tweets..." });
 		listTimeline.setVisibleRowCount(20);
+		jScrollPane.setViewportView(listTimeline);
 
-		listTimeline.setBounds(10, 11, 464, 680);
-		getContentPane().add(listTimeline);
+		jScrollPane.setBounds(10, 11, 980, 680);
+		getContentPane().add(jScrollPane);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void loadTimeLine() {
+		try {
+
+			Future<TimeLine> timeLineDuTurFu = homeTimeLineService.getTimeLine();
+
+			while (!timeLineDuTurFu.isDone()) {
+				// Tant que la TimeLine n'est pas chargée
+			}
+
+			listTimeline.setListData(timeLineDuTurFu.get().getTimeline().toArray());
+			listTimeline.setCellRenderer(new TweetCellRenderer());
+
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
 	}
 }

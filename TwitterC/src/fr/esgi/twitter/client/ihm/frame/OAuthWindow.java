@@ -3,26 +3,45 @@ package fr.esgi.twitter.client.ihm.frame;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
+import javax.inject.Inject;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import org.springframework.stereotype.Component;
+
 import fr.esgi.twitter.client.service.OAuthService;
 
+@Component
 public class OAuthWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
+
+	@Inject
+	private OAuthService oAuthService;
+
+	@Inject
+	private MainWindow mainWindow;
 
 	private JButton btnRequestCode;
 	private JButton btnOk;
 	private JTextField txtCode;
 
-	public OAuthWindow() {
+	public void open() {
 
 		txtCode = new JTextField();
 		txtCode.setText("Code");
 		txtCode.setColumns(10);
+
+		txtCode.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				txtCode.setText("");
+			}
+		});
 
 		buildRequestCodeButton();
 		buildOkButton();
@@ -47,7 +66,7 @@ public class OAuthWindow extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 
-				OAuthService.ask();
+				oAuthService.ask();
 			}
 		});
 	}
@@ -66,14 +85,14 @@ public class OAuthWindow extends JFrame {
 
 					if (!code.isEmpty()) {
 
-						if (OAuthService.auth(code)) {
+						if (oAuthService.auth(code)) {
 
 							// Fermer la fenêtre
 							setVisible(false);
 							dispose();
 
 							// Ouvrir MainWindow
-							new MainWindow();
+							mainWindow.open();
 
 						} else {
 

@@ -1,13 +1,13 @@
 package fr.esgi.twitter.client.test;
 
-import fr.esgi.twitter.client.service.OAuthService;
+import fr.esgi.twitter.client.service.impl.DefaultOAuthService;
 
 public class OAuthServiceTest {
 
 	@org.junit.Test
 	public void test() {
 
-		OAuthService.ask();
+		new DefaultOAuthService().ask();
 	}
 
 }
