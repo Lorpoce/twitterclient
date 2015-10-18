@@ -1,16 +1,14 @@
 package fr.esgi.twitter.client.service.impl;
 
-import org.apache.http.HttpStatus;
 import org.json.JSONArray;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
 import org.scribe.model.Verb;
 import org.springframework.stereotype.Service;
 
-import fr.esgi.twitter.client.consts.URLs;
+import fr.esgi.twitter.client.consts.URLEnum;
+import fr.esgi.twitter.client.error.TwitterException;
 import fr.esgi.twitter.client.model.TimeLine;
-import fr.esgi.twitter.client.scribe.OAuthScribeTwitter;
 import fr.esgi.twitter.client.service.HomeTimeLineService;
+import fr.esgi.twitter.client.utils.OAuthScribeUtils;
 
 /**
  * Service pour gérer la TimeLine
@@ -21,28 +19,15 @@ import fr.esgi.twitter.client.service.HomeTimeLineService;
 @Service
 public class DefaultHomeTimeLineService implements HomeTimeLineService {
 
-	// @Async
 	@Override
 	/** {@inheritDoc} */
-	public TimeLine getTimeLine() {
+	public TimeLine getTimeLine() throws TwitterException {
 
-		OAuthRequest request = new OAuthRequest(Verb.GET, URLs.STATUSES__HOME_TIMELINE);
+		TimeLine timeline = new TimeLine();
 
-		OAuthScribeTwitter.signRequest(request);
+		timeline.load(new JSONArray(
+				OAuthScribeUtils.getResponse(Verb.GET, URLEnum.STATUSES__HOME_TIMELINE.getUrl()).getBody()));
 
-		Response response = request.send();
-
-		if (response != null && response.getCode() == HttpStatus.SC_OK) {
-
-			TimeLine timeline = new TimeLine();
-
-			timeline.load(new JSONArray(response.getBody()));
-
-			return timeline;
-
-		} else {
-
-			return null;
-		}
+		return timeline;
 	}
 }

@@ -18,13 +18,13 @@ import javax.swing.JTextField;
 
 import org.springframework.stereotype.Component;
 
+import fr.esgi.twitter.client.error.TwitterException;
 import fr.esgi.twitter.client.ihm.renderer.TweetCellRenderer;
 import fr.esgi.twitter.client.model.CurrentUser;
 import fr.esgi.twitter.client.model.TimeLine;
 import fr.esgi.twitter.client.model.Tweet;
 import fr.esgi.twitter.client.service.HomeTimeLineService;
 import fr.esgi.twitter.client.service.UpdateStatusesService;
-import fr.esgi.twitter.client.task.HomeTimeLineTimerTask;
 
 @Component
 public class MainWindow extends JFrame {
@@ -36,9 +36,6 @@ public class MainWindow extends JFrame {
 	@Inject
 	private HomeTimeLineService homeTimeLineService;
 
-	@Inject
-	private HomeTimeLineTimerTask homeTimeLineTimerTask;
-
 	@SuppressWarnings("rawtypes")
 	private JList listTimeline;
 	private JLabel lblProfileImage;
@@ -46,6 +43,9 @@ public class MainWindow extends JFrame {
 	private JTextField txtTweet;
 	private DefaultListModel<Tweet> tweets;
 
+	/**
+	 * Afficher la MainWindow
+	 */
 	public void open() {
 
 		buildProfileImageIcon();
@@ -71,6 +71,9 @@ public class MainWindow extends JFrame {
 		scheduleTimeLineLoading();
 	}
 
+	/**
+	 * Construire l'avatar de l'utilisateur
+	 */
 	private void buildProfileImageIcon() {
 
 		lblProfileImage = new JLabel("");
@@ -80,6 +83,9 @@ public class MainWindow extends JFrame {
 		lblProfileImage.setBounds(10, 702, 48, 48);
 	}
 
+	/**
+	 * Construire le bouton pour envoyer un tweet
+	 */
 	private void buildUpdateButton() {
 
 		btnUpdate = new JButton("Update");
@@ -95,16 +101,17 @@ public class MainWindow extends JFrame {
 
 					if (tweet.length() > 0 && tweet.length() <= 140) {
 
-						if (updateStatusesService.update(txtTweet.getText())) {
+						try {
+
+							updateStatusesService.update(txtTweet.getText());
 
 							txtTweet.setText("");
 
 							JOptionPane.showMessageDialog(btnUpdate, "Tweet posted.");
 
-						} else {
+						} catch (TwitterException exception) {
 
-							JOptionPane.showMessageDialog(btnUpdate,
-									"An error occurred... I can not update your status.");
+							JOptionPane.showMessageDialog(btnUpdate, exception.getMessage());
 						}
 
 					} else {
@@ -117,6 +124,9 @@ public class MainWindow extends JFrame {
 		});
 	}
 
+	/**
+	 * Construire la liste des tweets
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void buildTimeLineList() {
 
@@ -133,16 +143,25 @@ public class MainWindow extends JFrame {
 		getContentPane().add(jScrollPane);
 	}
 
+	/**
+	 * Charger la timeline
+	 */
 	private void loadTimeLine() {
 
-		TimeLine timeline = homeTimeLineService.getTimeLine();
+		TimeLine timeline;
 
-		if (timeline == null) {
+		try {
+			// Récupérer la timeline
+			timeline = homeTimeLineService.getTimeLine();
 
-			JOptionPane.showMessageDialog(this, "Can not load user timeline.");
+		} catch (TwitterException e) {
+
+			JOptionPane.showMessageDialog(this, e.getMessage());
+
 			return;
 		}
 
+		// Vider la liste
 		tweets.clear();
 
 		for (Tweet tweet : timeline.getTimeline()) {
@@ -151,6 +170,9 @@ public class MainWindow extends JFrame {
 		}
 	}
 
+	/**
+	 * Programmer le rechargement de la timeline toutes les 75s
+	 */
 	private void scheduleTimeLineLoading() {
 
 		new Timer().scheduleAtFixedRate(new TimerTask() {

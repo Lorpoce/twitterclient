@@ -18,6 +18,11 @@ public class TimeLine {
 	@Getter
 	private List<Tweet> timeline = new ArrayList<Tweet>();
 
+	/**
+	 * Charger la timeline
+	 * 
+	 * @param response
+	 */
 	public void load(JSONArray response) {
 
 		for (int i = 0; i < response.length(); i++) {

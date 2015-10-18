@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * DesktopUtils
  * 
  * @author Benjamin
  *

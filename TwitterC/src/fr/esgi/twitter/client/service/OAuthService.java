@@ -1,5 +1,6 @@
 package fr.esgi.twitter.client.service;
 
+import fr.esgi.twitter.client.error.TwitterException;
 import fr.esgi.twitter.client.model.CurrentUser;
 
 /**
@@ -14,6 +15,7 @@ public interface OAuthService {
 	/**
 	 * Ouvre le navigateur et demande à Twitter pour que l'utilisateur autorise
 	 * l'application
+	 * 
 	 */
 	void ask();
 
@@ -21,9 +23,8 @@ public interface OAuthService {
 	 * Demander à Twitter si l'utilisateur a autorisé l'application
 	 * 
 	 * @param code
-	 * @return <code>true</code> si l'authentification s'est correctement
-	 *         déroulée, <code>false</code> si non
+	 * @throws TwitterException
 	 */
-	boolean auth(String code);
+	void auth(String code) throws TwitterException;
 
 }

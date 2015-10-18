@@ -3,16 +3,14 @@ package fr.esgi.twitter.client.service.impl;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import org.apache.http.HttpStatus;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
 import org.scribe.model.Verb;
 import org.springframework.stereotype.Service;
 
-import fr.esgi.twitter.client.consts.URLs;
+import fr.esgi.twitter.client.consts.URLEnum;
+import fr.esgi.twitter.client.error.TwitterException;
 import fr.esgi.twitter.client.model.CurrentUser;
-import fr.esgi.twitter.client.scribe.OAuthScribeTwitter;
 import fr.esgi.twitter.client.service.UpdateStatusesService;
+import fr.esgi.twitter.client.utils.OAuthScribeUtils;
 
 /**
  * Service pour mettre à jour le status du {@link CurrentUser} (poster un tweet)
@@ -27,15 +25,15 @@ public class DefaultUpdateStatusesService implements UpdateStatusesService {
 
 	@Override
 	/** {@inheritDoc} */
-	public boolean update(String tweet) {
+	public void update(String tweet) throws TwitterException {
 
-		OAuthRequest request = new OAuthRequest(Verb.POST, getUrl(tweet));
+		String url = getUrl(tweet);
 
-		OAuthScribeTwitter.signRequest(request);
+		if (url == null) {
+			throw new TwitterException("Can not update status");
+		}
 
-		Response response = request.send();
-
-		return response != null && response.getCode() == HttpStatus.SC_OK;
+		OAuthScribeUtils.getResponse(Verb.POST, url);
 	}
 
 	/**
@@ -47,7 +45,7 @@ public class DefaultUpdateStatusesService implements UpdateStatusesService {
 
 		try {
 
-			return URLs.STATUSES__UPDATE + "?" + STATUS + "=" + URLEncoder.encode(tweet, "UTF-8");
+			return URLEnum.STATUSES__UPDATE.getUrl() + "?" + STATUS + "=" + URLEncoder.encode(tweet, "UTF-8");
 
 		} catch (UnsupportedEncodingException e) {
 

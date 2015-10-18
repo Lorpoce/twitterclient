@@ -3,20 +3,18 @@ package fr.esgi.twitter.client.service.impl;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.scribe.exceptions.OAuthException;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
 import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.springframework.stereotype.Service;
 
-import fr.esgi.twitter.client.consts.URLs;
+import fr.esgi.twitter.client.consts.URLEnum;
+import fr.esgi.twitter.client.error.TwitterException;
 import fr.esgi.twitter.client.model.CurrentUser;
-import fr.esgi.twitter.client.scribe.OAuthScribeTwitter;
 import fr.esgi.twitter.client.service.OAuthService;
 import fr.esgi.twitter.client.utils.DesktopUtils;
+import fr.esgi.twitter.client.utils.OAuthScribeUtils;
 
 /**
  * Service pour s'authentifier sur Twitter. Initialise aussi le
@@ -34,8 +32,8 @@ public class DefaultOAuthService implements OAuthService {
 
 		try {
 
-			DesktopUtils.openWebpage(new URI(OAuthScribeTwitter.getInstance().getService()
-					.getAuthorizationUrl(OAuthScribeTwitter.getInstance().getRequestToken())));
+			DesktopUtils.openWebpage(new URI(OAuthScribeUtils.getInstance().getService()
+					.getAuthorizationUrl(OAuthScribeUtils.getInstance().getRequestToken())));
 
 		} catch (URISyntaxException e) {
 
@@ -45,42 +43,21 @@ public class DefaultOAuthService implements OAuthService {
 
 	@Override
 	/** {@inheritDoc} */
-	public boolean auth(String code) {
+	public void auth(String code) throws TwitterException {
 
 		try {
 
-			OAuthScribeTwitter.getInstance().setAccessToken(OAuthScribeTwitter.getInstance().getService()
-					.getAccessToken(OAuthScribeTwitter.getInstance().getRequestToken(), new Verifier(code)));
-
-			return initTwitterUser();
+			OAuthScribeUtils.getInstance().setAccessToken(OAuthScribeUtils.getInstance().getService()
+					.getAccessToken(OAuthScribeUtils.getInstance().getRequestToken(), new Verifier(code)));
 
 		} catch (OAuthException e) {
 
-			return false;
-		}
-	}
-
-	/**
-	 * Initialise {@link CurrentUser}
-	 */
-	private boolean initTwitterUser() {
-
-		// Créer la requête
-		OAuthRequest request = new OAuthRequest(Verb.GET, URLs.ACCOUNT__VERIFY_CREDENTIALS);
-
-		OAuthScribeTwitter.signRequest(request);
-
-		Response response = request.send();
-
-		if (response != null && response.getCode() == HttpStatus.SC_OK) {
-
-			// Initialiser l'utilisateur
-			CurrentUser.init(new JSONObject(response.getBody()));
-
-			return true;
+			throw new TwitterException("Can not auth to Twitter. Please check the code.");
 		}
 
-		return false;
+		// Initialiser CurrentUser
+		CurrentUser.init(new JSONObject(
+				OAuthScribeUtils.getResponse(Verb.GET, URLEnum.ACCOUNT__VERIFY_CREDENTIALS.getUrl()).getBody()));
 	}
 
 }

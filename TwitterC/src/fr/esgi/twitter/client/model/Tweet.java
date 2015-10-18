@@ -20,6 +20,10 @@ public class Tweet {
 	public Tweet() {
 	}
 
+	/**
+	 * 
+	 * @param json
+	 */
 	public Tweet(JSONObject json) {
 
 		setUser(new User(json.getJSONObject("user")));

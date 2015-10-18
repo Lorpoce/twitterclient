@@ -1,7 +1,6 @@
 package fr.esgi.twitter.client.service;
 
-import java.util.concurrent.Future;
-
+import fr.esgi.twitter.client.error.TwitterException;
 import fr.esgi.twitter.client.model.TimeLine;
 
 /**
@@ -13,9 +12,10 @@ import fr.esgi.twitter.client.model.TimeLine;
 public interface HomeTimeLineService {
 
 	/**
-	 * Charge la {@link TimeLine}
+	 * Charge la timeline
 	 * 
-	 * @return {@link Future}
+	 * @return {@link TimeLine}
+	 * @throws TwitterException
 	 */
-	TimeLine getTimeLine();
+	TimeLine getTimeLine() throws TwitterException;
 }

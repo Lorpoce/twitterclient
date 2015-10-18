@@ -1,5 +1,6 @@
 package fr.esgi.twitter.client.service;
 
+import fr.esgi.twitter.client.error.TwitterException;
 import fr.esgi.twitter.client.model.CurrentUser;
 
 /**
@@ -14,9 +15,8 @@ public interface UpdateStatusesService {
 	 * Met à jour le status de l'utilisateur
 	 * 
 	 * @param tweet
-	 * @return <code>true</code> si le tweet a bien été posté,
-	 *         <code>false</code> si non
+	 * @throws TwitterException
 	 */
-	boolean update(String tweet);
+	void update(String tweet) throws TwitterException;
 
 }

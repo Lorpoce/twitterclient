@@ -1,5 +1,11 @@
 package fr.esgi.twitter.client.consts;
 
+/**
+ * Clefs de l'application
+ * 
+ * @author Benjamin
+ *
+ */
 public abstract class Consumer {
 
 	public static final String KEY = "PjjKEfuw5SNWOZiqhT2TWxu9P";

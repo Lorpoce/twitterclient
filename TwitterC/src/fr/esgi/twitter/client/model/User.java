@@ -35,6 +35,10 @@ public class User {
 	public User() {
 	}
 
+	/**
+	 * 
+	 * @param json
+	 */
 	public User(JSONObject json) {
 
 		setName(json.getString("name"));
