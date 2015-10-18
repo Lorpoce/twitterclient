@@ -3,10 +3,11 @@ package fr.esgi.twitter.client.ihm.frame;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.inject.Inject;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,8 +21,10 @@ import org.springframework.stereotype.Component;
 import fr.esgi.twitter.client.ihm.renderer.TweetCellRenderer;
 import fr.esgi.twitter.client.model.CurrentUser;
 import fr.esgi.twitter.client.model.TimeLine;
+import fr.esgi.twitter.client.model.Tweet;
 import fr.esgi.twitter.client.service.HomeTimeLineService;
 import fr.esgi.twitter.client.service.UpdateStatusesService;
+import fr.esgi.twitter.client.task.HomeTimeLineTimerTask;
 
 @Component
 public class MainWindow extends JFrame {
@@ -33,11 +36,15 @@ public class MainWindow extends JFrame {
 	@Inject
 	private HomeTimeLineService homeTimeLineService;
 
+	@Inject
+	private HomeTimeLineTimerTask homeTimeLineTimerTask;
+
 	@SuppressWarnings("rawtypes")
 	private JList listTimeline;
 	private JLabel lblProfileImage;
 	private JButton btnUpdate;
 	private JTextField txtTweet;
+	private DefaultListModel<Tweet> tweets;
 
 	public void open() {
 
@@ -61,6 +68,7 @@ public class MainWindow extends JFrame {
 		setVisible(true);
 
 		loadTimeLine();
+		scheduleTimeLineLoading();
 	}
 
 	private void buildProfileImageIcon() {
@@ -114,7 +122,10 @@ public class MainWindow extends JFrame {
 
 		JScrollPane jScrollPane = new JScrollPane();
 
-		listTimeline = new JList(new String[] { "Loading tweets..." });
+		tweets = new DefaultListModel<Tweet>();
+
+		listTimeline = new JList(tweets);
+		listTimeline.setCellRenderer(new TweetCellRenderer());
 		listTimeline.setVisibleRowCount(20);
 		jScrollPane.setViewportView(listTimeline);
 
@@ -122,21 +133,33 @@ public class MainWindow extends JFrame {
 		getContentPane().add(jScrollPane);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void loadTimeLine() {
-		try {
 
-			Future<TimeLine> timeLineDuTurFu = homeTimeLineService.getTimeLine();
+		TimeLine timeline = homeTimeLineService.getTimeLine();
 
-			while (!timeLineDuTurFu.isDone()) {
-				// Tant que la TimeLine n'est pas chargée
-			}
+		if (timeline == null) {
 
-			listTimeline.setListData(timeLineDuTurFu.get().getTimeline().toArray());
-			listTimeline.setCellRenderer(new TweetCellRenderer());
-
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Can not load user timeline.");
+			return;
 		}
+
+		tweets.clear();
+
+		for (Tweet tweet : timeline.getTimeline()) {
+
+			tweets.addElement(tweet);
+		}
+	}
+
+	private void scheduleTimeLineLoading() {
+
+		new Timer().scheduleAtFixedRate(new TimerTask() {
+
+			@Override
+			public void run() {
+
+				loadTimeLine();
+			}
+		}, 75000, 75000);
 	}
 }

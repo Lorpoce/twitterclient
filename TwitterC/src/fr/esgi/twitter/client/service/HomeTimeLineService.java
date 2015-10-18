@@ -13,8 +13,9 @@ import fr.esgi.twitter.client.model.TimeLine;
 public interface HomeTimeLineService {
 
 	/**
+	 * Charge la {@link TimeLine}
 	 * 
-	 * @return {@link TimeLine}
+	 * @return {@link Future}
 	 */
-	Future<TimeLine> getTimeLine();
+	TimeLine getTimeLine();
 }

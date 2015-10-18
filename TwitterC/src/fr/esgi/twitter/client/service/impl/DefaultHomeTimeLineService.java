@@ -1,14 +1,10 @@
 package fr.esgi.twitter.client.service.impl;
 
-import java.util.concurrent.Future;
-
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Verb;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import fr.esgi.twitter.client.consts.URLs;
@@ -25,10 +21,10 @@ import fr.esgi.twitter.client.service.HomeTimeLineService;
 @Service
 public class DefaultHomeTimeLineService implements HomeTimeLineService {
 
+	// @Async
 	@Override
-	@Async
 	/** {@inheritDoc} */
-	public Future<TimeLine> getTimeLine() {
+	public TimeLine getTimeLine() {
 
 		OAuthRequest request = new OAuthRequest(Verb.GET, URLs.STATUSES__HOME_TIMELINE);
 
@@ -36,14 +32,17 @@ public class DefaultHomeTimeLineService implements HomeTimeLineService {
 
 		Response response = request.send();
 
-		TimeLine timeline = new TimeLine();
-
 		if (response != null && response.getCode() == HttpStatus.SC_OK) {
+
+			TimeLine timeline = new TimeLine();
 
 			timeline.load(new JSONArray(response.getBody()));
 
-		}
+			return timeline;
 
-		return new AsyncResult<TimeLine>(timeline);
+		} else {
+
+			return null;
+		}
 	}
 }

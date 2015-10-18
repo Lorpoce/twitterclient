@@ -16,11 +16,9 @@ import lombok.Getter;
 public class TimeLine {
 
 	@Getter
-	private List<Tweet> timeline;
+	private List<Tweet> timeline = new ArrayList<Tweet>();
 
 	public void load(JSONArray response) {
-
-		timeline = new ArrayList<Tweet>();
 
 		for (int i = 0; i < response.length(); i++) {
 
