@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Représente un tweet
@@ -17,6 +18,7 @@ import lombok.Data;
  *
  */
 @Data
+@EqualsAndHashCode(of = "id")
 public class Tweet {
 
 	private User user;
@@ -24,6 +26,8 @@ public class Tweet {
 	private String text;
 
 	private Date creation;
+
+	private long id;
 
 	public Tweet() {
 	}
@@ -37,6 +41,8 @@ public class Tweet {
 		setUser(new User(json.getJSONObject("user")));
 
 		setText(json.getString("text"));
+
+		setId(json.getLong("id"));
 
 		try {
 			setCreation(new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH)

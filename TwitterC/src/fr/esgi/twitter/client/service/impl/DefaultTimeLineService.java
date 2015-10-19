@@ -17,7 +17,7 @@ import fr.esgi.twitter.client.utils.OAuthScribeUtils;
  *
  */
 @Service
-public class DefaultHomeTimeLineService implements TimeLineService {
+public class DefaultTimeLineService implements TimeLineService {
 
 	@Override
 	/** {@inheritDoc} */

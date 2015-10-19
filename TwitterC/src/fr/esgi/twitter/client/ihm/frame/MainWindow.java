@@ -17,6 +17,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import org.springframework.stereotype.Component;
 
@@ -38,11 +39,6 @@ public class MainWindow extends JFrame {
 	@Inject
 	private TimeLineService homeTimeLineService;
 
-	@SuppressWarnings("rawtypes")
-	private JList listTimeline;
-	private JLabel lblProfileImage;
-	private JButton btnUpdate;
-	private JTextField txtTweet;
 	private DefaultListModel<Tweet> tweets;
 	private Timer timer;
 
@@ -52,18 +48,12 @@ public class MainWindow extends JFrame {
 	public void open() {
 
 		buildProfileImageIcon();
-		buildUpdateButton();
+		buildTweetTextFieldUpdateButton();
 		buildTimeLineList();
 
-		txtTweet = new JTextField();
-		txtTweet.setColumns(10);
-		txtTweet.setBounds(71, 727, 800, 23);
-
 		getContentPane().setLayout(null);
-		getContentPane().add(btnUpdate);
-		getContentPane().add(lblProfileImage);
-		getContentPane().add(txtTweet);
 
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Twitter SOA");
 		setLocationRelativeTo(null);
 		setResizable(false);
@@ -75,6 +65,7 @@ public class MainWindow extends JFrame {
 
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
+				// Arrêter le timer lors de la fermeture
 				timer.cancel();
 				timer.purge();
 			}
@@ -86,20 +77,27 @@ public class MainWindow extends JFrame {
 	 */
 	private void buildProfileImageIcon() {
 
-		lblProfileImage = new JLabel("");
+		JLabel lblProfileImage = new JLabel("");
 		lblProfileImage.setIcon(CurrentUser.getInstance().getProfileImage());
 		lblProfileImage.setForeground(Color.BLUE);
 		lblProfileImage.setBackground(Color.BLUE);
 		lblProfileImage.setBounds(10, 702, 48, 48);
+		getContentPane().add(lblProfileImage);
 	}
 
 	/**
-	 * Construire le bouton pour envoyer un tweet
+	 * Construire le bouton pour envoyer un tweet et le champs de texte tweet
 	 */
-	private void buildUpdateButton() {
+	private void buildTweetTextFieldUpdateButton() {
 
-		btnUpdate = new JButton("Update");
+		JTextField txtTweet = new JTextField();
+		txtTweet.setColumns(10);
+		txtTweet.setBounds(71, 727, 800, 23);
+		getContentPane().add(txtTweet);
+
+		JButton btnUpdate = new JButton("Update");
 		btnUpdate.setBounds(907, 727, 80, 23);
+		getContentPane().add(btnUpdate);
 
 		btnUpdate.addActionListener(new ActionListener() {
 
@@ -137,14 +135,14 @@ public class MainWindow extends JFrame {
 	/**
 	 * Construire la liste des tweets
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void buildTimeLineList() {
 
 		JScrollPane jScrollPane = new JScrollPane();
 
 		tweets = new DefaultListModel<Tweet>();
 
-		listTimeline = new JList(tweets);
+		JList listTimeline = new JList(tweets);
 		listTimeline.setCellRenderer(new TweetCellRenderer());
 		listTimeline.setVisibleRowCount(20);
 		jScrollPane.setViewportView(listTimeline);

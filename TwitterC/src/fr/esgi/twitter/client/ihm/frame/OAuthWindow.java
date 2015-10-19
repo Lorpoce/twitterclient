@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import org.springframework.stereotype.Component;
 
@@ -57,6 +58,7 @@ public class OAuthWindow extends JFrame {
 		getContentPane().add(txtCode);
 		getContentPane().add(btnOk);
 
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setSize(200, 100);
