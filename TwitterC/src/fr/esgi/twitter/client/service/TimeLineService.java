@@ -9,13 +9,21 @@ import fr.esgi.twitter.client.model.TimeLine;
  * @author Benjamin
  *
  */
-public interface HomeTimeLineService {
+public interface TimeLineService {
 
 	/**
-	 * Charge la timeline
+	 * Charge la HOME timeline
 	 * 
 	 * @return {@link TimeLine}
 	 * @throws TwitterException
 	 */
-	TimeLine getTimeLine() throws TwitterException;
+	TimeLine getHomeTimeLine() throws TwitterException;
+
+	/**
+	 * Charge la USER timeline
+	 * 
+	 * @return
+	 * @throws TwitterException
+	 */
+	TimeLine getUserTimeLine() throws TwitterException;
 }

@@ -30,7 +30,7 @@ public class TweetCellRenderer extends JLabel implements ListCellRenderer<Tweet>
 
 		setBackground(Color.white);
 		setBorder(new TitledBorder(LineBorder.createGrayLineBorder(),
-				value.getUser().getName() + " (@" + value.getUser().getScreenName() + ")"));
+				value.getUser().getName() + " (@" + value.getUser().getScreenName() + ") - " + value.getCreation()));
 		setText(value.getText());
 		setIcon(value.getUser().getProfileImage());
 

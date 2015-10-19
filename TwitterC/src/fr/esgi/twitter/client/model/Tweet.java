@@ -1,5 +1,11 @@
 package fr.esgi.twitter.client.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import lombok.Data;
@@ -17,6 +23,8 @@ public class Tweet {
 
 	private String text;
 
+	private Date creation;
+
 	public Tweet() {
 	}
 
@@ -29,6 +37,13 @@ public class Tweet {
 		setUser(new User(json.getJSONObject("user")));
 
 		setText(json.getString("text"));
+
+		try {
+			setCreation(new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH)
+					.parse(json.getString("created_at")));
+		} catch (JSONException | ParseException e) {
+			setCreation(null);
+		}
 	}
 
 }

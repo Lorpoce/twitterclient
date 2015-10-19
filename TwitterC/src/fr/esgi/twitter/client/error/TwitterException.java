@@ -32,7 +32,7 @@ public class TwitterException extends Exception {
 			} else {
 
 				JSONObject error = new JSONObject(response.getBody()).getJSONArray("errors").getJSONObject(0);
-				message = "Error " + error.getString("code") + " : " + error.getString("message");
+				message = "Error " + error.getInt("code") + " : " + error.getString("message");
 			}
 
 			return message;

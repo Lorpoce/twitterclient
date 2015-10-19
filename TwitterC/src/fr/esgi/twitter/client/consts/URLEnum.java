@@ -23,7 +23,12 @@ public enum URLEnum {
 	/**
 	 * GET statuses/home_timeline
 	 */
-	STATUSES__HOME_TIMELINE("https://api.twitter.com/1.1/statuses/home_timeline.json");
+	STATUSES__HOME_TIMELINE("https://api.twitter.com/1.1/statuses/home_timeline.json"),
+
+	/**
+	 * GET statuses/user_timeline
+	 */
+	STATUSES__USER_TIMELINE("https://api.twitter.com/1.1/statuses/user_timeline.json");
 
 	@Getter
 	private String url;

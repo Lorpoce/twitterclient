@@ -3,6 +3,8 @@ package fr.esgi.twitter.client.ihm.frame;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,7 +25,7 @@ import fr.esgi.twitter.client.ihm.renderer.TweetCellRenderer;
 import fr.esgi.twitter.client.model.CurrentUser;
 import fr.esgi.twitter.client.model.TimeLine;
 import fr.esgi.twitter.client.model.Tweet;
-import fr.esgi.twitter.client.service.HomeTimeLineService;
+import fr.esgi.twitter.client.service.TimeLineService;
 import fr.esgi.twitter.client.service.UpdateStatusesService;
 
 @Component
@@ -34,7 +36,7 @@ public class MainWindow extends JFrame {
 	private UpdateStatusesService updateStatusesService;
 
 	@Inject
-	private HomeTimeLineService homeTimeLineService;
+	private TimeLineService homeTimeLineService;
 
 	@SuppressWarnings("rawtypes")
 	private JList listTimeline;
@@ -42,6 +44,7 @@ public class MainWindow extends JFrame {
 	private JButton btnUpdate;
 	private JTextField txtTweet;
 	private DefaultListModel<Tweet> tweets;
+	private Timer timer;
 
 	/**
 	 * Afficher la MainWindow
@@ -69,6 +72,13 @@ public class MainWindow extends JFrame {
 
 		loadTimeLine();
 		scheduleTimeLineLoading();
+
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				timer.cancel();
+				timer.purge();
+			}
+		});
 	}
 
 	/**
@@ -152,7 +162,7 @@ public class MainWindow extends JFrame {
 
 		try {
 			// Récupérer la timeline
-			timeline = homeTimeLineService.getTimeLine();
+			timeline = homeTimeLineService.getHomeTimeLine();
 
 		} catch (TwitterException e) {
 
@@ -175,7 +185,9 @@ public class MainWindow extends JFrame {
 	 */
 	private void scheduleTimeLineLoading() {
 
-		new Timer().scheduleAtFixedRate(new TimerTask() {
+		timer = new Timer();
+
+		timer.scheduleAtFixedRate(new TimerTask() {
 
 			@Override
 			public void run() {
