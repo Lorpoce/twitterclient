@@ -5,10 +5,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.inject.Inject;
+import javax.swing.BoundedRangeModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,14 +19,17 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.springframework.stereotype.Component;
 
 import fr.esgi.twitter.client.error.TwitterException;
 import fr.esgi.twitter.client.ihm.renderer.TweetCellRenderer;
 import fr.esgi.twitter.client.model.CurrentUser;
-import fr.esgi.twitter.client.model.TimeLine;
+import fr.esgi.twitter.client.model.HomeTimeLine;
 import fr.esgi.twitter.client.model.Tweet;
 import fr.esgi.twitter.client.service.TimeLineService;
 import fr.esgi.twitter.client.service.UpdateStatusesService;
@@ -55,12 +60,12 @@ public class MainWindow extends JFrame {
 
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setTitle("Twitter SOA");
-		setLocationRelativeTo(null);
+		// setLocationRelativeTo(null);
 		setResizable(false);
 		setSize(1000, 800);
 		setVisible(true);
 
-		loadTimeLine();
+		initTimeLine();
 		scheduleTimeLineLoading();
 
 		addWindowListener(new WindowAdapter() {
@@ -149,32 +154,113 @@ public class MainWindow extends JFrame {
 
 		jScrollPane.setBounds(10, 11, 980, 680);
 		getContentPane().add(jScrollPane);
+
+		jScrollPane.getVerticalScrollBar().getModel().addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent event) {
+
+				// Si on arrive à la fin des tweets, charger d'anciens tweets
+
+				BoundedRangeModel model = (BoundedRangeModel) event.getSource();
+
+				if ((model.getValue() + model.getExtent() == model.getMaximum()) && (!tweets.isEmpty())) {
+					loadOldTweets();
+				}
+			}
+		});
 	}
 
 	/**
-	 * Charger la timeline
+	 * Compléter la DefaultListModel à partir de la {@link HomeTimeLine}
+	 * 
+	 * @param newTweets
+	 *            : <code>true</code> pour que les nouveaux tweets apparaissent
+	 *            au début de la liste, <code>false</code> s'ils doivent
+	 *            apparaitre à la fin
 	 */
-	private void loadTimeLine() {
+	private void completeTweetsListModel(boolean newTweets) {
 
-		TimeLine timeline;
+		/*
+		 * Si newTweets, on prends la timeline à partir de la fin, sinon du
+		 * début
+		 */
+
+		Set<Tweet> set = newTweets ? HomeTimeLine.getInstance().getTimeline().descendingSet()
+				: HomeTimeLine.getInstance().getTimeline();
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+
+				for (Tweet tweet : set) {
+
+					if (!tweets.contains(tweet)) {
+
+						// Si newTweets
+						if (newTweets) {
+
+							// Ajouter le tweet au début
+							tweets.add(0, tweet);
+
+						} else {
+
+							// Ajouter le tweet à la fin
+							tweets.addElement(tweet);
+						}
+					}
+				}
+			}
+		});
+	}
+
+	/**
+	 * Charger d'anciens tweets
+	 */
+	private void loadOldTweets() {
 
 		try {
-			// Récupérer la timeline
-			timeline = homeTimeLineService.getHomeTimeLine();
+
+			homeTimeLineService.completeHomeTimeLineOldTweets();
+
+			completeTweetsListModel(false);
 
 		} catch (TwitterException e) {
 
 			JOptionPane.showMessageDialog(this, e.getMessage());
-
-			return;
 		}
+	}
 
-		// Vider la liste
-		tweets.clear();
+	/**
+	 * Initialiser la timeline
+	 */
+	private void initTimeLine() {
 
-		for (Tweet tweet : timeline.getTimeline()) {
+		try {
 
-			tweets.addElement(tweet);
+			homeTimeLineService.initHomeTimeLine();
+
+			completeTweetsListModel(false);
+
+		} catch (TwitterException e) {
+
+			JOptionPane.showMessageDialog(this, e.getMessage());
+		}
+	}
+
+	/**
+	 * Charger la timeline avec de nouveaux tweets
+	 */
+	private void loadNewTweets() {
+
+		try {
+
+			homeTimeLineService.completeHomeTimeLineNewTweets();
+
+			completeTweetsListModel(true);
+
+		} catch (TwitterException e) {
+
+			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
 	}
 
@@ -190,7 +276,7 @@ public class MainWindow extends JFrame {
 			@Override
 			public void run() {
 
-				loadTimeLine();
+				loadNewTweets();
 			}
 		}, 75000, 75000);
 	}

@@ -1,7 +1,7 @@
 package fr.esgi.twitter.client.service;
 
 import fr.esgi.twitter.client.error.TwitterException;
-import fr.esgi.twitter.client.model.TimeLine;
+import fr.esgi.twitter.client.model.HomeTimeLine;
 
 /**
  * Service pour gérer la TimeLine
@@ -12,18 +12,23 @@ import fr.esgi.twitter.client.model.TimeLine;
 public interface TimeLineService {
 
 	/**
-	 * Charge la HOME timeline
+	 * Compléter la {@link HomeTimeLine} avec d'anciens tweets
 	 * 
-	 * @return {@link TimeLine}
 	 * @throws TwitterException
 	 */
-	TimeLine getHomeTimeLine() throws TwitterException;
+	void completeHomeTimeLineOldTweets() throws TwitterException;
 
 	/**
-	 * Charge la USER timeline
+	 * Compléter la {@link HomeTimeLine} avec de nouveaux tweets
 	 * 
-	 * @return
 	 * @throws TwitterException
 	 */
-	TimeLine getUserTimeLine() throws TwitterException;
+	void completeHomeTimeLineNewTweets() throws TwitterException;
+
+	/**
+	 * Initialiser {@link HomeTimeLine}
+	 * 
+	 * @throws TwitterException
+	 */
+	void initHomeTimeLine() throws TwitterException;
 }

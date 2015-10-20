@@ -40,7 +40,6 @@ public class OAuthWindow extends JFrame {
 		txtCode = new JTextField();
 		txtCode.setText("Code");
 		txtCode.setColumns(10);
-
 		txtCode.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

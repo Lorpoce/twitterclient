@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import fr.esgi.twitter.client.consts.URLEnum;
 import fr.esgi.twitter.client.error.TwitterException;
-import fr.esgi.twitter.client.model.TimeLine;
+import fr.esgi.twitter.client.model.HomeTimeLine;
 import fr.esgi.twitter.client.service.TimeLineService;
 import fr.esgi.twitter.client.utils.OAuthScribeUtils;
 
@@ -19,36 +19,56 @@ import fr.esgi.twitter.client.utils.OAuthScribeUtils;
 @Service
 public class DefaultTimeLineService implements TimeLineService {
 
+	private static final String max_id = "max_id";
+	private static final String since_id = "since_id";
+
 	@Override
 	/** {@inheritDoc} */
-	public TimeLine getHomeTimeLine() throws TwitterException {
+	public void initHomeTimeLine() throws TwitterException {
 
-		return getTimeLine(URLEnum.STATUSES__HOME_TIMELINE);
+		loadHomeTimeLine(URLEnum.STATUSES__HOME_TIMELINE.getUrl());
 	}
 
 	@Override
 	/** {@inheritDoc} */
-	public TimeLine getUserTimeLine() throws TwitterException {
+	public void completeHomeTimeLineOldTweets() throws TwitterException {
 
-		return getTimeLine(URLEnum.STATUSES__USER_TIMELINE);
+		loadHomeTimeLine(getUrl(false));
+	}
+
+	@Override
+	/** {@inheritDoc} */
+	public void completeHomeTimeLineNewTweets() throws TwitterException {
+
+		loadHomeTimeLine(getUrl(true));
 	}
 
 	/**
 	 * 
+	 * @param newTweets
+	 * @return URL pour avoir la timeline
+	 */
+	private String getUrl(boolean newTweets) {
+
+		if (newTweets) {
+
+			return URLEnum.STATUSES__HOME_TIMELINE.getUrl() + "?" + since_id + "="
+					+ HomeTimeLine.getInstance().getMaxId();
+
+		} else {
+
+			return URLEnum.STATUSES__HOME_TIMELINE.getUrl() + "?" + max_id + "="
+					+ HomeTimeLine.getInstance().getMinId();
+		}
+	}
+
+	/**
+	 * Charge la {@link HomeTimeLine}
+	 * 
 	 * @param url
-	 * @return {@link TimeLine}
 	 * @throws TwitterException
 	 */
-	private TimeLine getTimeLine(URLEnum url) throws TwitterException {
-
-		if (!URLEnum.STATUSES__HOME_TIMELINE.equals(url) && !URLEnum.STATUSES__USER_TIMELINE.equals(url)) {
-			throw new TwitterException("Can not get timeline");
-		}
-
-		TimeLine timeline = new TimeLine();
-
-		timeline.load(new JSONArray(OAuthScribeUtils.getResponse(Verb.GET, url.getUrl()).getBody()));
-
-		return timeline;
+	private void loadHomeTimeLine(String url) throws TwitterException {
+		HomeTimeLine.getInstance().load(new JSONArray(OAuthScribeUtils.getResponse(Verb.GET, url).getBody()));
 	}
 }

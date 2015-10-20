@@ -16,6 +16,8 @@ public class ResponseUtils {
 	 * 
 	 * @param response
 	 * @throws TwitterException
+	 *             si la réponse est <code>null</code> ou si son code est
+	 *             différent de 200
 	 */
 	public static void validateResponse(Response response) throws TwitterException {
 

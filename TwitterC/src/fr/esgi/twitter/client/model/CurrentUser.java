@@ -10,7 +10,7 @@ import lombok.Getter;
  * @author Benjamin
  *
  */
-public class CurrentUser extends User {
+public class CurrentUser {
 
 	@Getter
 	private static User instance = null;

@@ -45,9 +45,12 @@ public class Tweet {
 		setId(json.getLong("id"));
 
 		try {
+
 			setCreation(new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH)
 					.parse(json.getString("created_at")));
+
 		} catch (JSONException | ParseException e) {
+
 			setCreation(null);
 		}
 	}
