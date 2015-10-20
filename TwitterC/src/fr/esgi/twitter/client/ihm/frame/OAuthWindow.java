@@ -28,34 +28,18 @@ public class OAuthWindow extends JFrame {
 	@Inject
 	private MainWindow mainWindow;
 
-	private JButton btnRequestCode;
-	private JButton btnOk;
 	private JTextField txtCode;
+	private JButton btnOk;
 
 	/**
 	 * Afficher la fenêtre
 	 */
 	public void open() {
 
-		txtCode = new JTextField();
-		txtCode.setText("Code");
-		txtCode.setColumns(10);
-		txtCode.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// Vider le text field lors du click
-				txtCode.setText("");
-			}
-		});
-
 		buildRequestCodeButton();
-		buildOkButton();
+		buildCodeTextFieldOkButton();
 
 		getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-
-		getContentPane().add(btnRequestCode);
-		getContentPane().add(txtCode);
-		getContentPane().add(btnOk);
 
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
@@ -69,23 +53,42 @@ public class OAuthWindow extends JFrame {
 	 */
 	private void buildRequestCodeButton() {
 
-		btnRequestCode = new JButton("Request code");
+		JButton btnRequestCode = new JButton("Request code");
+		getContentPane().add(btnRequestCode);
 
 		btnRequestCode.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-
 				oAuthService.ask();
+
+				txtCode.setEditable(true);
+				btnOk.setEnabled(true);
 			}
 		});
 	}
 
 	/**
-	 * Création du bouton OK pour s'auth sur Twitter
+	 * Création du champs de texte du code et du bouton OK pour s'auth sur
+	 * Twitter
 	 */
-	private void buildOkButton() {
+	private void buildCodeTextFieldOkButton() {
+
+		txtCode = new JTextField();
+		txtCode.setText("Code");
+		txtCode.setColumns(10);
+		txtCode.setEditable(false);
+		txtCode.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// Vider le text field lors du click
+				txtCode.setText("");
+			}
+		});
+		getContentPane().add(txtCode);
 
 		btnOk = new JButton("OK");
+		btnOk.setEnabled(false);
+		getContentPane().add(btnOk);
 
 		btnOk.addActionListener(new ActionListener() {
 
