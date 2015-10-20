@@ -3,6 +3,8 @@ package fr.esgi.twitter.client.ihm.frame;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Set;
@@ -46,6 +48,7 @@ public class MainWindow extends JFrame {
 
 	private DefaultListModel<Tweet> tweets;
 	private Timer timer;
+	private JTextField txtTweet;
 
 	/**
 	 * Afficher la MainWindow
@@ -95,7 +98,7 @@ public class MainWindow extends JFrame {
 	 */
 	private void buildTweetTextFieldUpdateButton() {
 
-		JTextField txtTweet = new JTextField();
+		txtTweet = new JTextField();
 		txtTweet.setColumns(10);
 		txtTweet.setBounds(71, 727, 800, 23);
 		getContentPane().add(txtTweet);
@@ -166,6 +169,21 @@ public class MainWindow extends JFrame {
 
 				if ((model.getValue() + model.getExtent() == model.getMaximum()) && (!tweets.isEmpty())) {
 					loadOldTweets();
+				}
+			}
+		});
+
+		listTimeline.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+
+				if (evt.getClickCount() == 2) {
+
+					// Si double tweet sur un tweet
+
+					txtTweet.setText(
+							"@" + tweets.getElementAt(((JList) evt.getSource()).locationToIndex(evt.getPoint()))
+									.getUser().getScreenName() + " ");
+
 				}
 			}
 		});
